@@ -1,0 +1,1 @@
+import{getConfig}from'./config.js';import{runPipeline}from'./pipeline.js';import{logger}from'./logger.js';export default async function(req,res){logger.info('Cron run');try{const r=await runPipeline(getConfig());res.status(200).json(r)}catch(e){logger.error('Cron fail',{err:e.message});res.status(500).json({error:e.message})}}
