@@ -1,0 +1,1 @@
+export const logger={info:(m,d)=>{if((process.env.LOG_LEVEL||'info')!=='none')console.log(JSON.stringify({level:'info',msg:m,...d}))},error:(m,d)=>console.error(JSON.stringify({level:'error',msg:m,...d})),debug:(m,d)=>{if(process.env.LOG_LEVEL==='debug')console.log(JSON.stringify({level:'debug',msg:m,...d}))}}
