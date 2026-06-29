@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Post Indonesia — AI Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{colors:{dante:{bg:'#0a0a0f',card:'#13131a',border:'#1f1f2e',accent:'#f97316','accent-glow':'#fb923c',green:'#10b981',amber:'#f59e0b',red:'#ef4444'}}}}}</script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}body{background:#0a0a0f;color:#e2e8f0;font-family:'Inter',system-ui,sans-serif;min-height:100vh}.glow{box-shadow:0 0 40px rgba(249,115,22,.15)}.glow-text{text-shadow:0 0 20px rgba(249,115,22,.5)}.card{background:#13131a;border:1px solid #1f1f2e;border-radius:16px;padding:24px;transition:all .2s}.card:hover{border-color:#2d2d40}.btn{padding:10px 24px;border-radius:12px;font-weight:600;cursor:pointer;transition:all .2s;border:none}.btn-primary{background:#f97316;color:#fff}.btn-primary:hover{background:#ea580c;box-shadow:0 0 20px rgba(249,115,22,.3)}.btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}.btn-outline{background:0 0;border:1px solid #2d2d40;color:#e2e8f0}.btn-outline:hover{border-color:#f97316;color:#fb923c}.btn:disabled{opacity:.5;cursor:not-allowed}.log-line{font-family:'JetBrains Mono',monospace;font-size:13px;padding:6px 0;border-bottom:1px solid #1a1a24}.pulse{animation:pulse 2s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px}.status-ok{background:#10b981;box-shadow:0 0 8px #10b981}.status-err{background:#ef4444;box-shadow:0 0 8px #ef4444}.status-warn{background:#f59e0b;box-shadow:0 0 8px #f59e0b}
+    </style>
+</head>
+<body class="p-6 md:p-10">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex items-center gap-4 mb-10">
+            <div class="w-12 h-12 bg-dante-accent rounded-xl flex items-center justify-center text-2xl glow">🇮🇩</div>
+            <div><h1 class="text-3xl font-bold glow-text">Post Indonesia</h1><p class="text-gray-500 text-sm mt-1">AI Content Engine for Threads</p></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="card"><div class="flex items-center gap-3"><span class="status-dot pulse" id="statusDot"></span><span class="text-sm font-medium" id="statusText">Checking...</span></div></div>
+            <div class="card"><div class="text-2xl font-bold" id="postCount">--</div><div class="text-gray-500 text-sm">Posts Today</div></div>
+            <div class="card"><div class="text-2xl font-bold" id="lastPostTime">--</div><div class="text-gray-500 text-sm">Last Post</div></div>
+        </div>
+        <div class="card mb-6">
+            <h2 class="text-lg font-semibold mb-4">⚡ Quick Actions</h2>
+            <div class="flex flex-wrap gap-3">
+                <button class="btn btn-primary" onclick="trigger(false)" id="btnPost">🚀 Generate & Post</button>
+                <button class="btn btn-outline" onclick="trigger(true)" id="btnDry">🔍 Dry Run</button>
+                <button class="btn btn-outline" onclick="checkDebug()">🩺 Debug</button>
+                <a href="/api/auth" class="btn btn-outline inline-block">🔐 Connect Threads</a>
+            </div>
+        </div>
+        <div class="card">
+            <h2 class="text-lg font-semibold mb-4">📋 Activity</h2>
+            <div id="logs" class="max-h-96 overflow-y-auto"><div class="log-line text-gray-500">Waiting...</div></div>
+        </div>
+    </div>
+    <script>
+        function addLog(m,t='info'){const c={info:'text-gray-400',success:'text-green-400',error:'text-red-400',warn:'text-amber-400'};const d=document.createElement('div');d.className='log-line '+(c[t]||'');d.textContent='['+new Date().toLocaleTimeString()+'] '+m;document.getElementById('logs').prepend(d);if(document.getElementById('logs').children.length>50)document.getElementById('logs').lastChild.remove();if(document.getElementById('logs').children[0]?.textContent==='Waiting...')document.getElementById('logs').innerHTML=''}
+        async function checkDebug(){addLog('🔍 check...','info');try{const r=await fetch('/api/debug');const d=await r.json();const ok=d.env.hasApiKey&&d.env.hasToken;document.getElementById('statusDot').className=ok?'status-dot status-ok':'status-dot pulse status-warn';document.getElementById('statusText').textContent=ok?'All Systems Go':'Missing Config';addLog(JSON.stringify(d.env),ok?'success':'warn')}catch(e){addLog(e.message,'error')}}
+        async function trigger(dry){['btnDry','btnPost'].forEach(i=>document.getElementById(i).disabled=true);addLog(dry?'🔍 Dry run...':'🚀 Posting...','info');try{const r=await fetch('/api/manual'+(dry?'?dry=true':''),{method:'POST'});const d=await r.json();if(d.status==='success'){addLog('✅ '+(dry?'DRY RUN':'POSTED')+' — '+(d.generatedText||'').slice(0,80),'success');document.getElementById('lastPostTime').textContent=new Date().toLocaleTimeString()}else addLog('❌ '+(d.error||'failed'),'error')}catch(e){addLog(e.message,'error')}['btnDry','btnPost'].forEach(i=>{document.getElementById(i).disabled=false})}
+        checkDebug();
+    </script>
+</body>
+</html>
